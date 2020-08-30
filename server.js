@@ -23,8 +23,6 @@ app.get('/weather', (request, response) => {
     let array = [];
     const geoData = require('./data/weather.json');
     geoData.data.forEach(element => {
-        console.log(element.weather.description);
-        console.log(element.valid_date);
         let weatherData = new Weather(element);
         array.push(weatherData);
     });
@@ -40,7 +38,6 @@ app.use(express.static('.'))
 
 
 app.get('/', (request, response) => {
-    console.log('test');
     response.status(200).send('Working');
 });
 
@@ -49,7 +46,8 @@ app.use('*', (req, res) => {
 });
 
 app.use((error, req, res) => {
-    res.status(500).send(error);
+    let msg = {status:500, responseText:"Sorry, something went wrong"}
+    res.status(500).send(msg);
 });
 
 app.listen(PORT, () => {
