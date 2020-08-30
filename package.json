@@ -1,10 +1,17 @@
 {
   "name": "city_explorer_api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "**Author**: Ahmed Yousef **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)",
+  "main": "server.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -16,8 +23,6 @@
   "bugs": {
     "url": "https://github.com/Ahyousef/city_explorer_api/issues"
   },
-  "homepage": "https://github.com/Ahyousef/city_explorer_api#readme",
-  "dependencies": {
-    "express": "^4.17.1"
-  }
+  "homepage": "https://github.com/Ahyousef/city_explorer_api#readme"
 }
+
