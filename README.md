@@ -12,10 +12,14 @@ This project is to provide an All-in-one tool for all people that are interested
 ## Architecture
 We are using HTML, CSS and javascript for the front-end. Node.js and horuko for the back-end.
 
+Also there are APIs used for location, weather and trails.
+
 ## Change Log
 
 30-08-2020 5:10pm - Application now has a deployed github repositary and horuko page.
 
+31-8-2020 4:24pm - Application now uses 3 different APIs and is able to get location, weather and trails data for any city.
+
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
--->
+--> 8/31/2020 : Mohammad eshtiwi
