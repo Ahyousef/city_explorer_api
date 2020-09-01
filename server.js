@@ -4,6 +4,7 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
 const { json } = require('express');
 
 
@@ -13,12 +14,10 @@ const PORT = process.env.PORT || 3030;
 const locationKEY = process.env.GEOCODE_API_KEY
 const weatherKEY = process.env.WEATHER_API_KEY
 const trailKEY = process.env.TRAIL_API_KEY
-
+const client = new pg.Client(process.env.DATABASE_URL)
 const app = express();
 app.use(cors());
 app.use(express.static('.'))
-app.listen(PORT, () => (console.log(`Listening on PORT ${PORT}`)))
-
 
 
 // Constructors
@@ -47,24 +46,45 @@ function Trail(td) { // td stands for trail data
     this.condition_time = td.conditionDate.slice(11,)
 }
 
-
-
 // Functions 
 
 function locationHandler(req, res) {
+    let SQL = `SELECT * FROM cities WHERE search_query=$1;`;
     let cityName = req.query.city;
-    const locationURL = `https://eu1.locationiq.com/v1/search.php?key=${locationKEY}&q=${cityName}&format=json`;
-    superagent.get(locationURL)
-        .then(
-            data => {
-                let currentLocation = new Location(cityName, data.body);
-                res.send(currentLocation)
+    let safeValue = [cityName]
+    client.query(SQL, safeValue)
+        .then(results => {
+            if (results.rowCount !== 0) {
+                console.log('Already exists, taking from database');
+                res.status(200).json(results.rows[0])
             }
-        )
-        .catch(() => {
-            errorHandler('something went wrong in etting the data from locationiq web', req, res)
+            else {
+                console.log('Does not exist in database, getting from API');
+                const locationURL = `https://eu1.locationiq.com/v1/search.php?key=${locationKEY}&q=${cityName}&format=json`;
+                superagent.get(locationURL)
+                    .then(
+                        data => {
+                            let currentLocation = new Location(cityName, data.body);
+                            let saveValues = Object.values(currentLocation)
+                            let SQL = `INSERT INTO cities VALUES ($1,$2,$3,$4)`
+                            console.log('Saving into Database');
+                            client.query(SQL, saveValues)
+                                .catch(error => errorHandler(error, req, res))
+                            res.send(currentLocation)
+                        }
+                    )
+                    .catch(() => {
+                        errorHandler('something went wrong in etting the data from locationiq web', req, res)
+                    })
+            }
         })
+        .catch(error => errorHandler(error, req, res))
+
+
+
 }
+
+
 
 function weatherHandler(req, res) {
     let array = [];
@@ -117,7 +137,9 @@ function status200(req, res) { res.status(200).send('Working'); }
 
 function status404(req, res) { res.status(404).send('NOT FOUND Error 404'); }
 
-
+function errorHandler(error, request, response) {
+    response.status(500).send(error);
+}
 
 
 // Routes
@@ -127,8 +149,12 @@ app.get('/trails', trailHandler)
 
 app.get('/', status200);
 app.use('*', status404);
-app.use((error, req, res) => {
-    let msg = { status: 500, responseText: "Sorry, something went wrong" }
-    res.status(500).send(msg);
-});
+app.use(errorHandler)
 
+
+client.connect()
+    .then(() => {
+        app.listen(PORT, () =>
+            console.log(`listening on ${PORT}`)
+        );
+    })
