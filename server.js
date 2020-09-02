@@ -125,10 +125,15 @@ function trailHandler(req, res) {
                     let trailData = new Trail(element);
                     array.push(trailData)
                 })
-                res.send(array)
-
+                if (array.length == 0) {
+                    res.send('No trails found')
+                }
+                else {
+                    res.send(array)
+                }
             }
         )
+        .catch(error => errorHandler(error, req, res))
 
 }
 
