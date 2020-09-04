@@ -125,7 +125,7 @@ function weatherHandler(req, res) {
         .then(
             data => {
                 data.body.data.map(element => {
-                    let weat+herData = new Weather(element);
+                    let weatherData = new Weather(element);
                     array.push(weatherData);
                 });
 
